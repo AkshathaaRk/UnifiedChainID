@@ -89,7 +89,7 @@ The application will be available at http://localhost:5173
 ## Contact
 
 For questions or support, please open an issue on this repository and contact to 
-Akshatha(https://github.com/AkshathaaRk)
-Abhishek(https://github.com/Abhishekmystic-KS)
-Hemalatha(https://github.com/26hemalathaV)
+- Akshatha(https://github.com/AkshathaaRk)
+- Abhishek(https://github.com/Abhishekmystic-KS)
+- Hemalatha(https://github.com/26hemalathaV)
 
