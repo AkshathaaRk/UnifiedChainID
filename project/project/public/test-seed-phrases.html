@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Phrase Generation Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #111111;
+      color: #CDA2FC;
+    }
+    h1 {
+      color: #B026FF;
+    }
+    button {
+      background-color: #B026FF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background-color: #9020D0;
+    }
+    #results {
+      background-color: #1A1A1A;
+      border: 1px solid #B026FF;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    .seed-phrase {
+      margin-bottom: 10px;
+      padding: 5px;
+      border-bottom: 1px solid #333;
+    }
+    .success {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    .failure {
+      color: #F44336;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Seed Phrase Generation Test</h1>
+  <p>This page tests the generation of unique seed phrases using BIP39.</p>
+  
+  <button id="testButton">Generate 10 Seed Phrases</button>
+  
+  <div id="results">Results will appear here...</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.js"></script>
+  <script>
+    document.getElementById('testButton').addEventListener('click', function() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = 'Generating seed phrases...\n\n';
+      
+      // Function to generate a seed phrase
+      const generateSeedPhrase = () => {
+        try {
+          // Create a Uint8Array to hold 16 bytes (128 bits) of random data
+          const entropy = new Uint8Array(16);
+          
+          // Fill it with cryptographically secure random values
+          window.crypto.getRandomValues(entropy);
+          
+          // Convert the random bytes to a hex string (required by bip39)
+          const entropyHex = Array.from(entropy)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+          
+          // Convert the random entropy to a 12-word mnemonic using BIP39 standard
+          const mnemonic = bip39.entropyToMnemonic(entropyHex);
+          
+          return mnemonic;
+        } catch (error) {
+          console.error("Error generating seed phrase:", error);
+          return null;
+        }
+      };
+      
+      // Generate multiple seed phrases
+      const seedPhrases = [];
+      const count = 10;
+      
+      for (let i = 0; i < count; i++) {
+        const phrase = generateSeedPhrase();
+        resultsDiv.innerHTML += `<div class="seed-phrase">Seed phrase ${i + 1}: ${phrase}</div>`;
+        seedPhrases.push(phrase);
+      }
+      
+      // Check for duplicates
+      const uniquePhrases = new Set(seedPhrases);
+      const isUnique = uniquePhrases.size === seedPhrases.length;
+      
+      if (isUnique) {
+        resultsDiv.innerHTML += `<div class="success">SUCCESS: All phrases are unique!</div>`;
+      } else {
+        resultsDiv.innerHTML += `<div class="failure">FAILURE: Found duplicate phrases!</div>`;
+      }
+      
+      resultsDiv.innerHTML += `<div>Generated ${seedPhrases.length} phrases, ${uniquePhrases.size} are unique</div>`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockchain Service Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #111;
+      color: #CDA2FC;
+    }
+    h1, h2 {
+      color: #B026FF;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+    .section {
+      flex: 1;
+      background-color: #1A1A1A;
+      border: 1px solid #B026FF30;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #222;
+      border: 1px solid #B026FF30;
+      border-radius: 4px;
+      color: #CDA2FC;
+    }
+    button {
+      background-color: #B026FF;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background-color: #9020D0;
+      box-shadow: 0 0 15px rgba(176, 38, 255, 0.6);
+    }
+    #log {
+      background-color: #222;
+      border: 1px solid #B026FF30;
+      border-radius: 4px;
+      padding: 10px;
+      height: 200px;
+      overflow-y: auto;
+      margin-top: 20px;
+      font-family: monospace;
+    }
+    .success {
+      color: #4CAF50;
+    }
+    .error {
+      color: #F44336;
+    }
+    .info {
+      color: #2196F3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockchain Service Test</h1>
+  
+  <div class="container">
+    <div class="section">
+      <h2>Register Wallet</h2>
+      <input type="text" id="registerName" placeholder="Enter name">
+      <button id="registerBtn">Create Wallet</button>
+      
+      <div id="registerResult"></div>
+    </div>
+    
+    <div class="section">
+      <h2>Import Wallet</h2>
+      <input type="text" id="importName" placeholder="Enter name">
+      <input type="text" id="importSeedPhrase" placeholder="Enter seed phrase">
+      <input type="text" id="importUid" placeholder="Enter UID (optional)">
+      <button id="importBtn">Import Wallet</button>
+      
+      <div id="importResult"></div>
+    </div>
+  </div>
+  
+  <h2>Log</h2>
+  <div id="log"></div>
+  
+  <script>
+    // Mock implementation of the blockchain service
+    class BlockchainService {
+      // In-memory storage for wallets
+      wallets = new Map();
+      
+      constructor() {
+        this.log('Mock blockchain service initialized');
+      }
+      
+      // Hash the seed phrase (simplified for testing)
+      hashSeedPhrase(seedPhrase) {
+        // In a real implementation, we would use a proper hashing algorithm
+        return seedPhrase.split('').reverse().join('');
+      }
+      
+      // Register a new wallet
+      async registerWallet(uid, seedPhrase) {
+        try {
+          // Check if wallet already exists
+          if (this.wallets.has(uid)) {
+            this.log(`Wallet with UID ${uid} already exists`, 'error');
+            return false;
+          }
+          
+          // Hash the seed phrase
+          const seedPhraseHash = this.hashSeedPhrase(seedPhrase);
+          
+          // Store the wallet data
+          this.wallets.set(uid, seedPhraseHash);
+          
+          this.log(`Wallet registered with UID: ${uid}`, 'success');
+          return true;
+        } catch (error) {
+          this.log(`Error registering wallet: ${error.message}`, 'error');
+          return false;
+        }
+      }
+      
+      // Verify wallet credentials
+      async verifyWallet(uid, seedPhrase) {
+        try {
+          // Check if wallet exists
+          if (!this.wallets.has(uid)) {
+            this.log(`Wallet with UID ${uid} does not exist`, 'error');
+            return false;
+          }
+          
+          // Hash the seed phrase
+          const seedPhraseHash = this.hashSeedPhrase(seedPhrase);
+          
+          // Compare the hashes
+          const storedHash = this.wallets.get(uid);
+          const isValid = storedHash === seedPhraseHash;
+          
+          if (isValid) {
+            this.log(`Wallet with UID ${uid} verified successfully`, 'success');
+          } else {
+            this.log(`Invalid seed phrase for wallet with UID ${uid}`, 'error');
+          }
+          
+          return isValid;
+        } catch (error) {
+          this.log(`Error verifying wallet: ${error.message}`, 'error');
+          return false;
+        }
+      }
+      
+      // Check if a wallet exists
+      async walletExists(uid) {
+        return this.wallets.has(uid);
+      }
+      
+      // Log messages to the console and UI
+      log(message, type = 'info') {
+        console.log(message);
+        
+        const logElement = document.getElementById('log');
+        const logEntry = document.createElement('div');
+        logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+        logEntry.className = type;
+        
+        logElement.appendChild(logEntry);
+        logElement.scrollTop = logElement.scrollHeight;
+      }
+    }
+    
+    // Create a singleton instance
+    const blockchainService = new BlockchainService();
+    
+    // Generate a random UID
+    function generateUID() {
+      return Math.random().toString(36).substring(2, 15) + 
+             Math.random().toString(36).substring(2, 15);
+    }
+    
+    // Generate a random seed phrase
+    function generateSeedPhrase(name) {
+      const words = [
+        "abandon", "ability", "access", "account", "achieve", "across", "action", "address",
+        "advance", "advice", "air", "animal", "apple", "autumn", "beach", "bird", "branch",
+        "bridge", "butterfly", "cactus", "build", "catch", "change", "choose", "collect",
+        "connect", "create", "dance", "decide", "discover", "brave", "bright", "calm",
+        "careful", "clever", "curious", "eager", "early", "easy", "empty", "digital",
+        "dream", "energy", "engine", "escape", "exchange", "family", "famous", "garden"
+      ];
+      
+      // Generate 12 unique words
+      const seedPhrase = [];
+      while (seedPhrase.length < 12) {
+        const randomIndex = Math.floor(Math.random() * words.length);
+        const word = words[randomIndex];
+        if (!seedPhrase.includes(word)) {
+          seedPhrase.push(word);
+        }
+      }
+      
+      return seedPhrase.join(' ');
+    }
+    
+    // Handle register button click
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const name = document.getElementById('registerName').value.trim();
+      
+      if (!name) {
+        blockchainService.log('Please enter a name', 'error');
+        return;
+      }
+      
+      // Generate UID and seed phrase
+      const uid = generateUID();
+      const seedPhrase = generateSeedPhrase(name);
+      
+      // Register wallet
+      const success = await blockchainService.registerWallet(uid, seedPhrase);
+      
+      if (success) {
+        const resultElement = document.getElementById('registerResult');
+        resultElement.innerHTML = `
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>UID:</strong> ${uid}</p>
+          <p><strong>Seed Phrase:</strong> ${seedPhrase}</p>
+        `;
+      }
+    });
+    
+    // Handle import button click
+    document.getElementById('importBtn').addEventListener('click', async () => {
+      const name = document.getElementById('importName').value.trim();
+      const seedPhrase = document.getElementById('importSeedPhrase').value.trim();
+      const uid = document.getElementById('importUid').value.trim();
+      
+      if (!name) {
+        blockchainService.log('Please enter a name', 'error');
+        return;
+      }
+      
+      if (!seedPhrase) {
+        blockchainService.log('Please enter a seed phrase', 'error');
+        return;
+      }
+      
+      if (uid) {
+        // Verify wallet
+        const success = await blockchainService.verifyWallet(uid, seedPhrase);
+        
+        if (success) {
+          const resultElement = document.getElementById('importResult');
+          resultElement.innerHTML = `
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>UID:</strong> ${uid}</p>
+            <p><strong>Seed Phrase:</strong> ${seedPhrase}</p>
+            <p class="success">Wallet imported successfully!</p>
+          `;
+        } else {
+          const resultElement = document.getElementById('importResult');
+          resultElement.innerHTML = `
+            <p class="error">Failed to import wallet. Invalid UID or seed phrase.</p>
+          `;
+        }
+      } else {
+        // Register as new wallet
+        const newUid = generateUID();
+        const success = await blockchainService.registerWallet(newUid, seedPhrase);
+        
+        if (success) {
+          const resultElement = document.getElementById('importResult');
+          resultElement.innerHTML = `
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>UID:</strong> ${newUid}</p>
+            <p><strong>Seed Phrase:</strong> ${seedPhrase}</p>
+            <p class="success">New wallet registered successfully!</p>
+          `;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

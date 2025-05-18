@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UnifiedChain ID - Blockchain Demo</title>
+  <style>
+    :root {
+      --purple-primary: #B026FF;
+      --purple-light: #CDA2FC;
+      --dark-bg: #111111;
+      --dark-card: #1A1A1A;
+      --dark-input: #222222;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--purple-light);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      color: var(--purple-primary);
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    h2 {
+      color: var(--purple-primary);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    
+    .subtitle {
+      color: var(--purple-light);
+      opacity: 0.8;
+      font-size: 1.2rem;
+    }
+    
+    .card {
+      background-color: var(--dark-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(176, 38, 255, 0.2);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--purple-light);
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--dark-input);
+      border: 1px solid rgba(176, 38, 255, 0.2);
+      border-radius: 4px;
+      color: var(--purple-light);
+      font-size: 1rem;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--purple-primary);
+      box-shadow: 0 0 0 2px rgba(176, 38, 255, 0.2);
+    }
+    
+    button {
+      background: linear-gradient(to right, var(--purple-primary), rgba(176, 38, 255, 0.5));
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover {
+      box-shadow: 0 0 15px rgba(176, 38, 255, 0.6);
+    }
+    
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    
+    .secondary-button {
+      background: var(--dark-input);
+      color: var(--purple-light);
+      border: 1px solid rgba(176, 38, 255, 0.2);
+    }
+    
+    .secondary-button:hover {
+      background-color: rgba(176, 38, 255, 0.1);
+    }
+    
+    .log-container {
+      background-color: var(--dark-input);
+      border: 1px solid rgba(176, 38, 255, 0.2);
+      border-radius: 4px;
+      padding: 1rem;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid rgba(176, 38, 255, 0.1);
+    }
+    
+    .log-info {
+      color: #64B5F6;
+    }
+    
+    .log-success {
+      color: #81C784;
+    }
+    
+    .log-error {
+      color: #E57373;
+    }
+    
+    .wallet-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .wallet-info-item {
+      display: flex;
+    }
+    
+    .wallet-info-label {
+      width: 120px;
+      color: rgba(205, 162, 252, 0.7);
+    }
+    
+    .seed-phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .seed-word {
+      background-color: var(--dark-input);
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(176, 38, 255, 0.2);
+      display: flex;
+      align-items: center;
+    }
+    
+    .seed-word-number {
+      color: rgba(176, 38, 255, 0.7);
+      margin-right: 0.5rem;
+      font-size: 0.8rem;
+      width: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>UnifiedChain ID</h1>
+      <p class="subtitle">Blockchain Integration Demo</p>
+    </header>
+    
+    <div class="grid">
+      <div class="card">
+        <h2>Current Wallet</h2>
+        <div id="current-wallet" class="wallet-info">
+          <div class="wallet-info-item">
+            <span class="wallet-info-label">Name:</span>
+            <span id="wallet-name">Not set</span>
+          </div>
+          <div class="wallet-info-item">
+            <span class="wallet-info-label">UID:</span>
+            <span id="wallet-uid">Not set</span>
+          </div>
+          <div class="wallet-info-item">
+            <span class="wallet-info-label">Seed Phrase:</span>
+            <span id="wallet-seed-phrase">Not set</span>
+          </div>
+        </div>
+        
+        <div id="seed-phrase-display" class="seed-phrase-grid" style="display: none;">
+          <!-- Seed phrase words will be inserted here -->
+        </div>
+        
+        <div class="button-group">
+          <button id="show-seed-phrase-btn" class="secondary-button" disabled>Show Seed Phrase</button>
+          <button id="hide-seed-phrase-btn" class="secondary-button" style="display: none;">Hide Seed Phrase</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>Wallet Actions</h2>
+        
+        <div class="form-group">
+          <label for="name-input">Name</label>
+          <input type="text" id="name-input" placeholder="Enter your name">
+        </div>
+        
+        <div class="button-group">
+          <button id="create-wallet-btn">Create New Wallet</button>
+          <button id="show-import-btn" class="secondary-button">Import Wallet</button>
+        </div>
+        
+        <div id="import-form" style="display: none; margin-top: 1rem;">
+          <div class="form-group">
+            <label for="import-seed-phrase">Seed Phrase</label>
+            <textarea id="import-seed-phrase" rows="3" placeholder="Enter your 12-word seed phrase"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="import-uid">UID (optional)</label>
+            <input type="text" id="import-uid" placeholder="Enter your UID if you have one">
+          </div>
+          
+          <div class="button-group">
+            <button id="import-wallet-btn">Import Wallet</button>
+            <button id="cancel-import-btn" class="secondary-button">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Blockchain Logs</h2>
+      <div id="log-container" class="log-container">
+        <div class="log-entry log-info">Blockchain service initialized. Ready to create or import wallets.</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Mock implementation of the blockchain service
+    class BlockchainService {
+      constructor() {
+        this.wallets = new Map();
+        this.addLog('Mock blockchain service initialized', 'info');
+      }
+      
+      // Hash the seed phrase (simplified for demo)
+      hashSeedPhrase(seedPhrase) {
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(seedPhrase))
+          .then(hashBuffer => {
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          });
+      }
+      
+      // Register a new wallet
+      async registerWallet(uid, seedPhrase) {
+        try {
+          // Check if wallet already exists
+          if (this.wallets.has(uid)) {
+            this.addLog(`Wallet with UID ${uid} already exists`, 'error');
+            return false;
+          }
+          
+          // Hash the seed phrase
+          const seedPhraseHash = await this.hashSeedPhrase(seedPhrase);
+          
+          // Store the wallet data
+          this.wallets.set(uid, seedPhraseHash);
+          
+          this.addLog(`Wallet registered on blockchain with UID: ${uid}`, 'success');
+          return true;
+        } catch (error) {
+          this.addLog(`Error registering wallet: ${error.message}`, 'error');
+          return false;
+        }
+      }
+      
+      // Verify wallet credentials
+      async verifyWallet(uid, seedPhrase) {
+        try {
+          // Check if wallet exists
+          if (!this.wallets.has(uid)) {
+            this.addLog(`Wallet with UID ${uid} does not exist`, 'error');
+            return false;
+          }
+          
+          // Hash the seed phrase
+          const seedPhraseHash = await this.hashSeedPhrase(seedPhrase);
+          
+          // Compare the hashes
+          const storedHash = this.wallets.get(uid);
+          const isValid = storedHash === seedPhraseHash;
+          
+          if (isValid) {
+            this.addLog(`Wallet with UID ${uid} verified successfully`, 'success');
+          } else {
+            this.addLog(`Invalid seed phrase for wallet with UID ${uid}`, 'error');
+          }
+          
+          return isValid;
+        } catch (error) {
+          this.addLog(`Error verifying wallet: ${error.message}`, 'error');
+          return false;
+        }
+      }
+      
+      // Check if a wallet exists
+      walletExists(uid) {
+        return this.wallets.has(uid);
+      }
+      
+      // Add a log message
+      addLog(message, type = 'info') {
+        const logContainer = document.getElementById('log-container');
+        const logEntry = document.createElement('div');
+        logEntry.className = `log-entry log-${type}`;
+        
+        const timestamp = new Date().toLocaleTimeString();
+        logEntry.textContent = `[${timestamp}] ${message}`;
+        
+        logContainer.prepend(logEntry);
+      }
+    }
+    
+    // Generate a random UID
+    function generateUID() {
+      return Array.from(crypto.getRandomValues(new Uint8Array(8)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase();
+    }
+    
+    // Generate a random seed phrase
+    function generateSeedPhrase() {
+      const wordList = [
+        "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse",
+        "access", "accident", "account", "accuse", "achieve", "acid", "acoustic", "acquire", "across", "act",
+        "action", "actor", "actress", "actual", "adapt", "add", "addict", "address", "adjust", "admit",
+        "adult", "advance", "advice", "aerobic", "affair", "afford", "afraid", "again", "age", "agent",
+        "agree", "ahead", "aim", "air", "airport", "aisle", "alarm", "album", "alcohol", "alert",
+        "alien", "all", "alley", "allow", "almost", "alone", "alpha", "already", "also", "alter",
+        "always", "amateur", "amazing", "among", "amount", "amused", "analyst", "anchor", "ancient", "anger"
+      ];
+      
+      // Generate 12 unique words
+      const seedPhrase = [];
+      while (seedPhrase.length < 12) {
+        const randomIndex = Math.floor(Math.random() * wordList.length);
+        const word = wordList[randomIndex];
+        if (!seedPhrase.includes(word)) {
+          seedPhrase.push(word);
+        }
+      }
+      
+      return seedPhrase.join(' ');
+    }
+    
+    // Initialize the blockchain service
+    const blockchainService = new BlockchainService();
+    
+    // Current wallet state
+    let currentWallet = {
+      name: '',
+      uid: '',
+      seedPhrase: ''
+    };
+    
+    // DOM elements
+    const nameInput = document.getElementById('name-input');
+    const createWalletBtn = document.getElementById('create-wallet-btn');
+    const showImportBtn = document.getElementById('show-import-btn');
+    const importForm = document.getElementById('import-form');
+    const importSeedPhrase = document.getElementById('import-seed-phrase');
+    const importUid = document.getElementById('import-uid');
+    const importWalletBtn = document.getElementById('import-wallet-btn');
+    const cancelImportBtn = document.getElementById('cancel-import-btn');
+    const showSeedPhraseBtn = document.getElementById('show-seed-phrase-btn');
+    const hideSeedPhraseBtn = document.getElementById('hide-seed-phrase-btn');
+    const seedPhraseDisplay = document.getElementById('seed-phrase-display');
+    
+    // Wallet info elements
+    const walletName = document.getElementById('wallet-name');
+    const walletUid = document.getElementById('wallet-uid');
+    const walletSeedPhrase = document.getElementById('wallet-seed-phrase');
+    
+    // Update the UI with current wallet info
+    function updateWalletInfo() {
+      walletName.textContent = currentWallet.name || 'Not set';
+      walletUid.textContent = currentWallet.uid || 'Not set';
+      walletSeedPhrase.textContent = currentWallet.seedPhrase ? '••••••••••••' : 'Not set';
+      
+      // Enable/disable show seed phrase button
+      showSeedPhraseBtn.disabled = !currentWallet.seedPhrase;
+      
+      // Update seed phrase display
+      if (currentWallet.seedPhrase) {
+        seedPhraseDisplay.innerHTML = '';
+        const words = currentWallet.seedPhrase.split(' ');
+        words.forEach((word, index) => {
+          const wordElement = document.createElement('div');
+          wordElement.className = 'seed-word';
+          wordElement.innerHTML = `<span class="seed-word-number">${index + 1}.</span><span>${word}</span>`;
+          seedPhraseDisplay.appendChild(wordElement);
+        });
+      }
+    }
+    
+    // Create a new wallet
+    createWalletBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      
+      if (!name) {
+        blockchainService.addLog('Please enter a name', 'error');
+        return;
+      }
+      
+      blockchainService.addLog(`Creating new wallet for ${name}...`, 'info');
+      
+      // Generate UID and seed phrase
+      const uid = generateUID();
+      const seedPhrase = generateSeedPhrase();
+      
+      // Register on blockchain
+      const success = await blockchainService.registerWallet(uid, seedPhrase);
+      
+      if (success) {
+        // Update current wallet
+        currentWallet = {
+          name,
+          uid,
+          seedPhrase
+        };
+        
+        // Update UI
+        updateWalletInfo();
+        nameInput.value = '';
+        
+        blockchainService.addLog(`Wallet created successfully for ${name}`, 'success');
+      }
+    });
+    
+    // Show import form
+    showImportBtn.addEventListener('click', () => {
+      importForm.style.display = 'block';
+      showImportBtn.style.display = 'none';
+    });
+    
+    // Cancel import
+    cancelImportBtn.addEventListener('click', () => {
+      importForm.style.display = 'none';
+      showImportBtn.style.display = 'inline-block';
+      importSeedPhrase.value = '';
+      importUid.value = '';
+    });
+    
+    // Import wallet
+    importWalletBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      const seedPhrase = importSeedPhrase.value.trim();
+      const uid = importUid.value.trim();
+      
+      if (!name) {
+        blockchainService.addLog('Please enter a name', 'error');
+        return;
+      }
+      
+      if (!seedPhrase) {
+        blockchainService.addLog('Please enter a seed phrase', 'error');
+        return;
+      }
+      
+      blockchainService.addLog(`Importing wallet for ${name}...`, 'info');
+      
+      try {
+        let success = false;
+        
+        if (uid) {
+          // Verify existing wallet
+          success = await blockchainService.verifyWallet(uid, seedPhrase);
+          
+          if (success) {
+            // Update current wallet
+            currentWallet = {
+              name,
+              uid,
+              seedPhrase
+            };
+            
+            blockchainService.addLog(`Wallet imported successfully for ${name}`, 'success');
+          } else {
+            blockchainService.addLog('Failed to import wallet. Invalid seed phrase or UID.', 'error');
+          }
+        } else {
+          // Register as new wallet with generated UID
+          const newUid = generateUID();
+          success = await blockchainService.registerWallet(newUid, seedPhrase);
+          
+          if (success) {
+            // Update current wallet
+            currentWallet = {
+              name,
+              uid: newUid,
+              seedPhrase
+            };
+            
+            blockchainService.addLog(`New wallet registered with UID: ${newUid}`, 'success');
+          }
+        }
+        
+        if (success) {
+          // Update UI
+          updateWalletInfo();
+          nameInput.value = '';
+          importSeedPhrase.value = '';
+          importUid.value = '';
+          importForm.style.display = 'none';
+          showImportBtn.style.display = 'inline-block';
+        }
+      } catch (error) {
+        blockchainService.addLog(`Error importing wallet: ${error.message}`, 'error');
+      }
+    });
+    
+    // Show seed phrase
+    showSeedPhraseBtn.addEventListener('click', () => {
+      seedPhraseDisplay.style.display = 'grid';
+      showSeedPhraseBtn.style.display = 'none';
+      hideSeedPhraseBtn.style.display = 'inline-block';
+    });
+    
+    // Hide seed phrase
+    hideSeedPhraseBtn.addEventListener('click', () => {
+      seedPhraseDisplay.style.display = 'none';
+      showSeedPhraseBtn.style.display = 'inline-block';
+      hideSeedPhraseBtn.style.display = 'none';
+    });
+    
+    // Initialize UI
+    updateWalletInfo();
+  </script>
+</body>
+</html>
