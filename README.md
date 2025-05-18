@@ -61,6 +61,7 @@ npm run dev
 The application will be available at http://localhost:5173
 
 ## How It Works
+https://youtu.be/quuwZu3rK_w
 
 ### Creating a Wallet
 
