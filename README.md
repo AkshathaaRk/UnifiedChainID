@@ -2,6 +2,9 @@
 
 A blockchain-based wallet system that allows users to create and manage digital identities across multiple blockchain networks with enhanced security and privacy. This platform gives you a foreground in blockchain of all the other wallets where we authenticate the other wallets on behalf of them as well it gives you a holdings of multiple wallet's Seed-phrase and private key.It gives you one seed phrase and UID where by remembering your UID and password you access all wallets very safely and securedly. It is better to remember one UID tahn storing and losing of multiple wallets.    
 
+## Application 
+![Image](https://github.com/user-attachments/assets/408317a1-1e8c-4ccb-bd3c-4e5b80164342)
+
 
 ## Features
 
